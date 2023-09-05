@@ -1,0 +1,11 @@
+T__0=1
+T__1=2
+T__2=3
+NUM=4
+ID=5
+STRING=6
+SPACE=7
+OTHER=8
+';'=1
+'='=2
+'print'=3

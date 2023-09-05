@@ -1,0 +1,2 @@
+project proj1 const boolean const1 = true, const2 = false; { }
+// this is not part of project

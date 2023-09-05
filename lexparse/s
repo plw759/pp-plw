@@ -1,17 +1,26 @@
 #!/bin/bash
 
-name=Simple
-jar=antlr-4.13.0-complete.jar
-output=gen
+# NOTE: do NOT modify this file.
 
-rm -rf ${output}
-java -cp ${jar} org.antlr.v4.Tool ${name}.g4 -visitor -o ${output}
+set -e
 
-cp ${jar} ${output}
-cp Main.java ${output}
-cp test.mu ${output}
+if [ ! -e antlr-4.9.2-complete.jar ]; then
+        curl -O https://www.antlr.org/download/antlr-4.9.2-complete.jar
+fi
 
-( cd ${output}
-  javac -cp ${jar} *.java
-  java -cp .:${jar} Main
-)
+cp="$(pwd)/antlr-4.9.2-complete.jar"
+test="$(pwd)/tests/13.prog"
+
+if ! java --version |& grep 'java 17' > /dev/null; then
+        echo "ERROR: Please use Oracle Java 17 (https://www.oracle.com/java/technologies/downloads)"
+        exit 1
+fi
+
+echo "Processing grammar ..."
+( cd code
+  java -Xmx500M -cp ${cp} org.antlr.v4.Tool -visitor SimpleLang.g4
+  javac -cp ${cp} *.java )
+
+echo "Running one input example ..."
+( cd code
+  ./simple ${test} )

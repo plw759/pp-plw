@@ -7,6 +7,7 @@ output=gen
 rm -rf ${output}
 java -cp ${jar} org.antlr.v4.Tool ${name}.g4 -visitor -o ${output}
 
+cp ${jar} ${output}
 cp Main.java ${output}
 cp test.mu ${output}
 

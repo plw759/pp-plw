@@ -16,11 +16,59 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	public class Scope{
+		String type;
+		String name;
+		List<Scope> decl = new ArrayList<Scope>();
+		Scope parent = null;
+		int args = 0;
+		public Scope(String type, String name){
+			this.type = type;
+			this.name = name;
+			this.decl = new ArrayList<Scope>();
+		}
+		public Scope(String type, String name, Scope parent){
+			this.type = type;
+			this.name = name;
+			this.decl = new ArrayList<Scope>();
+			this.parent = parent;
+			for (Scope s : parent.decl){
+				this.decl.add(s);
+			}
+		}
+		public Scope(String type, String name, Scope parent, int args){
+			this.type = type;
+			this.name = name;
+			this.decl = new ArrayList<Scope>();
+			this.parent = parent;
+			for (Scope s : parent.decl){
+				this.decl.add(s);
+			}
+			this.args = args;
+			
+		}
+		void printscope(){
+			List<String> temp = new ArrayList<String>();
+			for (Scope scope : this.decl){
+				temp.add(scope.type + " " + scope.name);
+			}
+			System.out.println(this.type+this.name+" : "+temp);
+		}
 
-	Deque<String> decl = new ArrayDeque<String>();
-	private boolean varerror = false;
+		Scope inscope(String name){
+			for (Scope s : this.decl){
+				if (name.equals(s.name)){
+					return s;
+				}
+			}
+			return null;
+		}
+	}
+	private boolean nameuseerror = false;
+	Scope currentScope = null;
 	@Override public void enterParse(SimpleLangParser.ParseContext ctx) { 
-		decl.push("@parse");
+		currentScope = new Scope("project",ctx.Ident().getText());
+		
 	}
 	/**
 	 * {@inheritDoc}
@@ -28,9 +76,9 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitParse(SimpleLangParser.ParseContext ctx) { 
-		System.out.println(decl);
-		if (varerror){
-			System.out.println("VAR ERROR");
+		// currentScope.printscope();
+		if (nameuseerror){
+			System.out.println("NAME USE ERROR");
 		}
 	}
 	/**
@@ -39,12 +87,12 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterConstDecl(SimpleLangParser.ConstDeclContext ctx) { 
-		for(int i = 0; i < ctx.Ident().size(); i++){
-			if( !decl.contains(ctx.Ident(i).getText())){
-				decl.push(ctx.Ident(i).getText());
-			}else{
-				varerror = true;
-			}
+		String type = ctx.type().Ident().getText();
+
+		for(int i =0; i < ctx.Ident().size(); i++){
+
+			//maybe make a separate attribute and constructor for const?
+			currentScope.decl.add(new Scope(type,ctx.Ident(i).getText(),currentScope));
 		}
 	}
 	/**
@@ -52,29 +100,21 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConstDecl(SimpleLangParser.ConstDeclContext ctx) {
-
-	 }
+	@Override public void exitConstDecl(SimpleLangParser.ConstDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterEnumDecl(SimpleLangParser.EnumDeclContext ctx) { 
-		//save enum id to outer scope
-		if( !decl.contains(ctx.Ident(0).getText())){
-			decl.push(ctx.Ident(0).getText());
-		}else{
-			varerror = true;
-		}
-		// decl.push("@enum");
-		Deque<String> local = new ArrayDeque<String>();
-		for(int i = 1; i < ctx.Ident().size(); i++){
-			if( !local.contains(ctx.Ident(i).getText())){
-				local.push(ctx.Ident(i).getText());
-			}else{
-				varerror = true;
-			}
+		String name = ctx.Ident(0).getText();
+		Scope child = new Scope("enum", name, currentScope);
+		currentScope.decl.add(child);
+		currentScope = child;
+
+		for(int i =1; i < ctx.Ident().size(); i++){
+
+			currentScope.decl.add(new Scope("enum",ctx.Ident(i).getText(),currentScope));
 		}
 	}
 	/**
@@ -83,45 +123,59 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEnumDecl(SimpleLangParser.EnumDeclContext ctx) { 
-		// System.out.println(decl);
-		
-		// while (!decl.pop().equals("@enum")){
-
-		// }
+		// currentScope.printscope();
+		currentScope = currentScope.parent;
 	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVarDecl(SimpleLangParser.VarDeclContext ctx) {
-		for(int i = 0; i < ctx.Ident().size(); i++){
-			if( !decl.contains(ctx.Ident(i).getText())){
-				decl.push(ctx.Ident(i).getText());
-			}else{
-				varerror = true;
+	@Override public void enterVarDecl(SimpleLangParser.VarDeclContext ctx) { 
+		String type = ctx.type().Ident().getText();
+
+		for(int i =0; i < ctx.Ident().size(); i++){
+			Scope s = new Scope(type,ctx.Ident(i).getText(),currentScope);
+			if (Character.isUpperCase(type.charAt(0))){
+				//if not a primitive; enum class or interface
+				Scope inherit = s.inscope(type);
+				if (inherit != null){
+					for (Scope x : inherit.decl){
+						if (!s.decl.contains(x)){
+							s.decl.add(x);
+						}
+					}
+				}else{
+					nameuseerror = true;
+					break;
+				}
 			}
+			currentScope.decl.add(s);
 		}
-	 }
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVarDecl(SimpleLangParser.VarDeclContext ctx) { }
+	@Override public void exitVarDecl(SimpleLangParser.VarDeclContext ctx) { 
+		
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterClassDecl(SimpleLangParser.ClassDeclContext ctx) { 
-		if( !decl.contains(ctx.Ident(0).getText())){
-			decl.push(ctx.Ident(0).getText());
-		}else{
-			varerror = true;
-		}
-		decl.push("@class");
+		// no inheritance from other classes yet
+		String name = ctx.Ident(0).getText();
+		Scope child = new Scope("class",name,currentScope);
+		currentScope.decl.add(child);
+		currentScope  = child;
+		currentScope.decl.add(child);
+
 		
+		//check for extends ident? and implements ident, *
 	}
 	/**
 	 * {@inheritDoc}
@@ -129,11 +183,8 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitClassDecl(SimpleLangParser.ClassDeclContext ctx) { 
-		System.out.println(decl);
-
-		while(!decl.pop().equals("@class")){
-
-		}
+		// currentScope.printscope();
+		currentScope = currentScope.parent;
 	}
 	/**
 	 * {@inheritDoc}
@@ -141,12 +192,11 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterInterfaceDecl(SimpleLangParser.InterfaceDeclContext ctx) { 
-		if( !decl.contains(ctx.Ident().getText())){
-			decl.push(ctx.Ident().getText());
-		}else{
-			varerror = true;
-		}
-		decl.push("@interface");
+		String name = ctx.Ident().getText();
+		Scope child = new Scope("interface",name,currentScope);
+		currentScope.decl.add(child);
+		currentScope  = child;
+
 		
 	}
 	/**
@@ -155,11 +205,8 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInterfaceDecl(SimpleLangParser.InterfaceDeclContext ctx) { 
-		System.out.println(decl);
-
-		while (!decl.pop().equals("@interface")){
-
-		}
+		// currentScope.printscope();
+		currentScope = currentScope.parent;
 	}
 	/**
 	 * {@inheritDoc}
@@ -167,12 +214,21 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterInterfaceMethodDecl(SimpleLangParser.InterfaceMethodDeclContext ctx) { 
-		if( !decl.contains(ctx.Ident().getText())){
-			decl.push(ctx.Ident().getText());
-		}else{
-			varerror = true;
+		String name = ctx.Ident().getText();
+		//if we want return types
+		// String type = "void";
+		// if (ctx.type() != null){
+		// 	type = ctx.type().getText();
+		// }
+		int args = 0;
+		if (ctx.formPars() != null){
+			args = ctx.formPars().Ident().size();
 		}
-		decl.push("@intmethod");
+		Scope child = new Scope("intmethod",name,currentScope,args);
+		currentScope.decl.add(child);
+		currentScope  = child;
+		currentScope.decl.add(child);
+
 	}
 	/**
 	 * {@inheritDoc}
@@ -180,11 +236,8 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitInterfaceMethodDecl(SimpleLangParser.InterfaceMethodDeclContext ctx) { 
-		System.out.println(decl);
-
-		while (!decl.pop().equals("@intmethod")){
-
-		}
+		// currentScope.printscope();
+		currentScope = currentScope.parent;
 	}
 	/**
 	 * {@inheritDoc}
@@ -192,26 +245,29 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterMethodDecl(SimpleLangParser.MethodDeclContext ctx) { 
-		if( !decl.contains(ctx.Ident().getText())){
-			decl.push(ctx.Ident().getText());
-		}else{
-			varerror = true;
+		String name = ctx.Ident().getText();
+		//if we want return types
+		// String type = "void";
+		// if (ctx.type() != null){
+		// 	type = ctx.type().getText();
+		// }
+		int args = 0;
+		if (ctx.formPars() != null){
+			args = ctx.formPars().Ident().size();
 		}
-		decl.push("@method");
-		//handle input decl, var decl when entering
+		Scope child = new Scope("method",name,currentScope,args);
+		currentScope.decl.add(child);
+		currentScope  = child;
+		currentScope.decl.add(child);
 	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMethodDecl(SimpleLangParser.MethodDeclContext ctx) { 
-		System.out.println(decl);
-
-		while (!decl.pop().equals("@method")){
-
-		}
-
+	@Override public void exitMethodDecl(SimpleLangParser.MethodDeclContext ctx) {
+		// currentScope.printscope();
+		currentScope = currentScope.parent;
 	}
 	/**
 	 * {@inheritDoc}
@@ -219,13 +275,10 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterFormPars(SimpleLangParser.FormParsContext ctx) { 
-		//part of method scope
-		for(int i = 0; i < ctx.Ident().size(); i++){
-			if( !decl.contains(ctx.Ident(i).getText())){
-				decl.push(ctx.Ident(i).getText());
-			}else{
-				varerror = true;
-			}
+
+		for(int i =0; i < ctx.Ident().size(); i++){
+
+			currentScope.decl.add(new Scope(ctx.type(i).Ident().getText(),ctx.Ident(i).getText(),currentScope));
 		}
 	}
 	/**
@@ -251,7 +304,9 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStatement(SimpleLangParser.StatementContext ctx) { }
+	@Override public void enterStatement(SimpleLangParser.StatementContext ctx) { 
+
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -263,7 +318,9 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDesignatorStatement(SimpleLangParser.DesignatorStatementContext ctx) { }
+	@Override public void enterDesignatorStatement(SimpleLangParser.DesignatorStatementContext ctx) { 
+
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -359,7 +416,41 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDesignator(SimpleLangParser.DesignatorContext ctx) { }
+	@Override public void enterDesignator(SimpleLangParser.DesignatorContext ctx) { 
+		//filter out predetermined methods
+		if (ctx.Ident().size() == 1){
+			if ("ord".equals(ctx.Ident(0).getText())
+			|| "chr".equals(ctx.Ident(0).getText())
+			|| "len".equals(ctx.Ident(0).getText())){
+
+				return;
+
+			}
+		}
+				//do actual checks in scope for each ident
+		String name=null;
+		Scope temp= currentScope;
+		// for . operator, we need to check scopes of each class
+		for(int i = 0; i < ctx.Ident().size(); i++){
+			// temp.printscope();
+
+			name = ctx.Ident(i).getText();
+			Scope prev = null;
+			if(i==0 && name.equals("this")){
+
+			}
+			else{
+				//prev = temp;
+				temp = temp.inscope(name);
+			}
+			if (temp == null){
+				//prev.printscope();
+				nameuseerror = true;
+				//System.out.println(name + " not found in current scope");
+				break;
+			}
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 *

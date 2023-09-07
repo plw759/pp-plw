@@ -7,30 +7,27 @@ import org.antlr.v4.runtime.tree.*;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        Path path = FileSystems.getDefault().getPath("../tests/0.prog");
-        SimpleLangLexer lexer = new SimpleLangLexer(CharStreams.fromPath(path));
+        for (int i = 0; i < 14; i ++){
+        System.out.println(i + ".prog");
         
-        SimpleLangParser parser = null;
-        ParseTree tree = null;
-        try {
-            parser = new SimpleLangParser(new CommonTokenStream(lexer));
-            tree = parser.parse();
-        }catch(Exception e){
-            System.out.println("PARSER ERROR");
-        }
+        Path path = FileSystems.getDefault().getPath("../tests/"+i+".prog");
+        SimpleLangLexer lexer = new SimpleLangLexer(CharStreams.fromPath(path));
 
-        System.out.println("Entry Errors:");
+        SimpleLangParser parser = new SimpleLangParser(new CommonTokenStream(lexer));
+        ParseTree tree = parser.parse();
+        ParseTreeWalker walker = new ParseTreeWalker();
+
+        // System.out.println("Entry Errors:");
         SimpleLangVisitor visitor = new EntryVisitor();
         visitor.visit(tree);
 
-        System.out.println("Name Use Errors:");
-        SimpleLangVisitor visitor2 = new NameUseVisitor();
-        //visitor2.visit(tree);
-
-        ParseTreeWalker walker = new ParseTreeWalker();
-
-
-        SimpleLangListener listener = new NameUseListener();
+        // System.out.println("Var Errors:");
+        SimpleLangListener listener = new VarListener();
         walker.walk(listener,tree);
+
+        // System.out.println("Name Use Errors:");
+        NameUseListener listener2 = new NameUseListener();
+        walker.walk(listener2, tree);
+        }
     }
 }

@@ -15,7 +15,7 @@ project Proj
             int  getn (int idx) { return neg[idx]; }
         }
     }
-
+    int x;
     Table val;
 {
     void f(char ch, int a, int arg)
@@ -23,6 +23,7 @@ project Proj
         {
             x = arg;
         }
+
 
     void entry()
         int x, i;
@@ -56,4 +57,5 @@ project Proj
             read(x);
         }
     }
+
 }

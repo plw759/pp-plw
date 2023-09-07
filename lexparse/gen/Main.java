@@ -3,7 +3,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import java.nio.file.Path;
 import java.nio.file.FileSystems;
-
+import org.antlr.v4.runtime.tree.*;
 public class Main {
 
     public static void main(String[] args) throws Exception {
@@ -25,6 +25,12 @@ public class Main {
 
         System.out.println("Name Use Errors:");
         SimpleLangVisitor visitor2 = new NameUseVisitor();
-        visitor2.visit(tree);
+        //visitor2.visit(tree);
+
+        ParseTreeWalker walker = new ParseTreeWalker();
+
+
+        SimpleLangListener listener = new NameUseListener();
+        walker.walk(listener,tree);
     }
 }

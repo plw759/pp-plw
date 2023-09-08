@@ -2,45 +2,47 @@
 
 # NOTE: do NOT modify this file.
 
-#set -e
+set -e
 
-#if [ ! -e antlr-4.9.2-complete.jar ]; then
-#        curl -O https://www.antlr.org/download/antlr-4.9.2-complete.jar
-#fi
+if [ ! -e antlr-4.9.2-complete.jar ]; then
+        curl -O https://www.antlr.org/download/antlr-4.9.2-complete.jar
+fi
 
-#cp="$(pwd)/antlr-4.9.2-complete.jar"
-test="$(pwd)/tests/0.prog"
+cp="$(pwd)/antlr-4.9.2-complete.jar"
+test="$(pwd)/tests/10.prog"
 
-#if ! java --version |& grep 'java 17' > /dev/null; then
-#        echo "ERROR: Please use Oracle Java 17 (https://www.oracle.com/java/technologies/downloads)"
-#        exit 1
-#fi
+if ! java --version |& grep 'java 17' > /dev/null; then
+        echo "ERROR: Please use Oracle Java 17 (https://www.oracle.com/java/technologies/downloads)"
+        exit 1
+fi
 
-#echo "Processing grammar ..."
-#( cd code
-#  java -Xmx500M -cp ${cp} org.antlr.v4.Tool -visitor SimpleLang.g4
-#  javac -cp ${cp} *.java )
+echo "Processing grammar ..."
+( cd code
+  java -Xmx500M -cp ${cp} org.antlr.v4.Tool -visitor SimpleLang.g4
+  javac -cp ${cp} *.java )
 
-#echo "Running one input example ..."
-#( cd code
-#  ./simple ${test} )
-
-name=SimpleLang
-jar=antlr-4.9.2-complete.jar
-output=gen
-
-rm -rf ${output}
-mkdir ${output}
-java -Xmx500M -cp ${jar} org.antlr.v4.Tool code/${name}.g4 -visitor -o ${output}
-
-cp ${jar} ${output}
-cp Main.java ${output}
-cp code/*.java ${output}
-cp code/${name}.g4 ${output}
-
-( cd ${output}
-  javac -cp ${jar} *.java
-  java -cp .:${jar} Main
-)
+echo "Running one input example ..."
 ( cd code
   ./simple ${test} )
+
+
+# name=SimpleLang
+# jar=antlr-4.9.2-complete.jar
+# output=gen
+
+# rm -rf ${output}
+# mkdir ${output}
+# java -Xmx500M -cp ${jar} org.antlr.v4.Tool code/${name}.g4 -visitor -o ${output}
+
+# cp ${jar} ${output}
+# cp Main.java ${output}
+# cp code/*.java ${output}
+# cp code/${name}.g4 ${output}
+
+# ( cd ${output}
+#   javac -cp ${jar} *.java
+#   java -cp .:${jar} Main
+# )
+# #( cd code
+# #  ./simple ${test} )
+

@@ -225,7 +225,3 @@ SPACE
 Comment
   : '//' ~[\r\n]* -> skip
   ;
-
-OTHER
-  : .
-  ;

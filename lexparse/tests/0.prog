@@ -1,4 +1,4 @@
-project Proj
+project Pro$@@j
     const int size = 10;
     enum Num { ZERO, ONE, TEN = 10 }
     interface I {

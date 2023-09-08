@@ -18,9 +18,11 @@ public class EntryVisitor<T> extends SimpleLangBaseVisitor<T> {
 	 */
     private int valid = 0; 
 
-	@Override public T visitParse(SimpleLangParser.ParseContext ctx) { 
+	@Override public T visitParse(SimpleLangParser.ParseContext ctx) {
+		System.out.println("parse");
         List<SimpleLangParser.MethodDeclContext> methodDeclList = ctx.methodDecl();
         for (SimpleLangParser.MethodDeclContext methodctx : methodDeclList){
+			System.out.println(methodctx.Ident().getText());
             visit(methodctx);
         }
         if (this.valid == 0){
@@ -79,12 +81,11 @@ public class EntryVisitor<T> extends SimpleLangBaseVisitor<T> {
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitMethodDecl(SimpleLangParser.MethodDeclContext ctx) { 
-        // System.out.println(ctx.Ident().getText());
+         System.out.println(ctx.Ident().getText());
         // System.out.println(ctx.VOID().getText());
 
         if(ctx.Ident().getText().equals("entry") 
         && ctx.VOID() != null 
-        && ctx.VOID().getText().equals("void") 
         && ctx.formPars() == null){
             this.valid = 1;
         }

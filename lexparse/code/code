@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        for (int i = 0; i < 16; i ++){
+        for (int i = 1; i < 15; i ++){
         System.out.println(i + ".prog");
         
         Path path = FileSystems.getDefault().getPath("../tests/"+i+".prog");
@@ -16,28 +16,34 @@ public class Main {
         lexer.removeErrorListeners();
         lexer.addErrorListener(MyLexListener.INSTANCE);
         CommonTokenStream cts = null;
+
         try{
             cts = new CommonTokenStream(lexer);
         }catch(ParseCancellationException e){
-            System.out.println( e.getMessage()); //lex error
+            System.out.println( e.getMessage() ); //lex error
             continue;
         }
+
         SimpleLangParser parser = new SimpleLangParser(cts);
         parser.removeErrorListeners();
         parser.addErrorListener(MyErrorListener.INSTANCE);
 
         ParseTree tree = null;
+        
         try{
             tree = parser.parse();
-        }catch(ParseCancellationException e){
-            System.out.println( e.getMessage());//parse error
+            
+        }catch(ParseCancellationException a){
+            System.out.println( a.getMessage()); //parse error
             continue;
         }
+
+        EntryVisitor visitor = new EntryVisitor();
+        visitor.visit(tree);
+
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        SimpleLangVisitor visitor = new EntryVisitor();
-        visitor.visit(tree);
-        SimpleLangListener listener = new VarListener();
+        VarListener listener = new VarListener();
         walker.walk(listener,tree);
         NameUseListener listener2 = new NameUseListener();
         walker.walk(listener2, tree);

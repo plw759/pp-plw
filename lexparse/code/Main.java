@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        for (int i = 1; i < 15; i ++){
+    for (int i = 1; i < 15; i ++){
         System.out.println(i + ".prog");
         
         Path path = FileSystems.getDefault().getPath("../tests/"+i+".prog");
@@ -38,12 +38,8 @@ public class Main {
             continue;
         }
 
-        try{
-                    EntryVisitor visitor = new EntryVisitor();
+        EntryVisitor visitor = new EntryVisitor();
         visitor.visit(tree);
-        }catch(Exception e){
-            System.out.println(e.getMessage());
-        }
 
         ParseTreeWalker walker = new ParseTreeWalker();
 

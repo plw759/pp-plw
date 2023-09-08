@@ -39,7 +39,6 @@ IMPLEMENTS=38
 Ident=39
 SPACE=40
 Comment=41
-OTHER=42
 '{'=1
 '}'=2
 ';'=3

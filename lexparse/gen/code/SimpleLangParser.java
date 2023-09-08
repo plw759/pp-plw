@@ -21,7 +21,7 @@ public class SimpleLangParser extends Parser {
 		Relop=16, Addop=17, Mulop=18, NumConst=19, BooleanConst=20, CharConst=21, 
 		PROJECT=22, BREAK=23, CLASS=24, INTERFACE=25, ENUM=26, ELSE=27, CONST=28, 
 		IF=29, NEW=30, PRINT=31, READ=32, RETURN=33, FOR=34, EXTENDS=35, CONTINUE=36, 
-		VOID=37, IMPLEMENTS=38, Ident=39, SPACE=40, Comment=41, OTHER=42;
+		VOID=37, IMPLEMENTS=38, Ident=39, SPACE=40, Comment=41;
 	public static final int
 		RULE_parse = 0, RULE_constDecl = 1, RULE_enumDecl = 2, RULE_varDecl = 3, 
 		RULE_classDecl = 4, RULE_interfaceDecl = 5, RULE_interfaceMethodDecl = 6, 
@@ -56,7 +56,7 @@ public class SimpleLangParser extends Parser {
 			"Addop", "Mulop", "NumConst", "BooleanConst", "CharConst", "PROJECT", 
 			"BREAK", "CLASS", "INTERFACE", "ENUM", "ELSE", "CONST", "IF", "NEW", 
 			"PRINT", "READ", "RETURN", "FOR", "EXTENDS", "CONTINUE", "VOID", "IMPLEMENTS", 
-			"Ident", "SPACE", "Comment", "OTHER"
+			"Ident", "SPACE", "Comment"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -2163,7 +2163,7 @@ public class SimpleLangParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3,\u018b\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3+\u018b\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\3\2\3\2\3\2\3\2\3\2\3\2\3\2\7\2\62\n\2"+

@@ -197,7 +197,6 @@ public class NameUseListener extends SimpleLangBaseListener {
 		//check for extends ident? and implements ident, *
 		if (ctx.EXTENDS() != null){
 			Scope parent = currentScope.inscope(ctx.Ident(1).getText());
-			System.out.println("extends");
 			if (parent != null && parent.type.equals("class")){
 				
 			}else{

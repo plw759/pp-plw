@@ -42,5 +42,5 @@ cp code/${name}.g4 ${output}
   javac -cp ${jar} *.java
   java -cp .:${jar} Main
 )
-#( cd code
-#  ./simple ${test} )
+( cd code
+  ./simple ${test} )

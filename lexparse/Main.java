@@ -4,28 +4,41 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.nio.file.Path;
 import java.nio.file.FileSystems;
 import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        for (int i = 0; i < 14; i ++){
+        for (int i = 0; i < 16; i ++){
         System.out.println(i + ".prog");
         
         Path path = FileSystems.getDefault().getPath("../tests/"+i+".prog");
         SimpleLangLexer lexer = new SimpleLangLexer(CharStreams.fromPath(path));
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(MyLexListener.INSTANCE);
+        CommonTokenStream cts = null;
+        try{
+            cts = new CommonTokenStream(lexer);
+        }catch(ParseCancellationException e){
+            System.out.println( e.getMessage()); //lex error
+            continue;
+        }
+        SimpleLangParser parser = new SimpleLangParser(cts);
+        parser.removeErrorListeners();
+        parser.addErrorListener(MyErrorListener.INSTANCE);
 
-        SimpleLangParser parser = new SimpleLangParser(new CommonTokenStream(lexer));
-        ParseTree tree = parser.parse();
+        ParseTree tree = null;
+        try{
+            tree = parser.parse();
+        }catch(ParseCancellationException e){
+            System.out.println( e.getMessage());//parse error
+            continue;
+        }
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        // System.out.println("Entry Errors:");
         SimpleLangVisitor visitor = new EntryVisitor();
         visitor.visit(tree);
-
-        // System.out.println("Var Errors:");
         SimpleLangListener listener = new VarListener();
         walker.walk(listener,tree);
-
-        // System.out.println("Name Use Errors:");
         NameUseListener listener2 = new NameUseListener();
         walker.walk(listener2, tree);
         }

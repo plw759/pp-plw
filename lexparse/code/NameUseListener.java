@@ -22,6 +22,7 @@ public class NameUseListener extends SimpleLangBaseListener {
 		List<Scope> decl = new ArrayList<Scope>();
 		Scope parent = null;
 		int args = 0;
+		boolean isconst = false;
 		public Scope(String type, String name){
 			this.type = type;
 			this.name = name;
@@ -47,6 +48,17 @@ public class NameUseListener extends SimpleLangBaseListener {
 			this.args = args;
 			
 		}
+		public Scope(String type, String name, Scope parent, boolean isconst){
+			this.type = type;
+			this.name = name;
+			this.decl = new ArrayList<Scope>();
+			this.parent = parent;
+			for (Scope s : parent.decl){
+				this.decl.add(s);
+			}
+			this.isconst = isconst;
+			
+		}
 		void printscope(){
 			List<String> temp = new ArrayList<String>();
 			for (Scope scope : this.decl){
@@ -56,7 +68,8 @@ public class NameUseListener extends SimpleLangBaseListener {
 		}
 
 		Scope inscope(String name){
-			for (Scope s : this.decl){
+			for (int i = this.decl.size() - 1; i >= 0; i--){
+				Scope s = this.decl.get(i);
 				if (name.equals(s.name)){
 					return s;
 				}
@@ -65,6 +78,8 @@ public class NameUseListener extends SimpleLangBaseListener {
 		}
 	}
 	private boolean nameuseerror = false;
+	private boolean constmoderror = false;
+	private boolean numparamserror = false;
 	Scope currentScope = null;
 	@Override public void enterParse(SimpleLangParser.ParseContext ctx) { 
 		currentScope = new Scope("project",ctx.Ident().getText());
@@ -80,6 +95,12 @@ public class NameUseListener extends SimpleLangBaseListener {
 		if (nameuseerror){
 			System.out.println("NAME USE ERROR");
 		}
+		if (constmoderror){
+			System.out.println("CONST MOD ERROR");
+		}
+		if (numparamserror){
+			System.out.println("NUM PARAMS ERROR");
+		}
 	}
 	/**
 	 * {@inheritDoc}
@@ -90,9 +111,7 @@ public class NameUseListener extends SimpleLangBaseListener {
 		String type = ctx.type().Ident().getText();
 
 		for(int i =0; i < ctx.Ident().size(); i++){
-
-			//maybe make a separate attribute and constructor for const?
-			currentScope.decl.add(new Scope(type,ctx.Ident(i).getText(),currentScope));
+			currentScope.decl.add(new Scope(type,ctx.Ident(i).getText(),currentScope,true));
 		}
 	}
 	/**
@@ -172,10 +191,34 @@ public class NameUseListener extends SimpleLangBaseListener {
 		Scope child = new Scope("class",name,currentScope);
 		currentScope.decl.add(child);
 		currentScope  = child;
-		currentScope.decl.add(child);
 
-		
+
+		int i = 1;
 		//check for extends ident? and implements ident, *
+		if (ctx.EXTENDS() != null){
+			Scope parent = currentScope.inscope(ctx.Ident(1).getText());
+			System.out.println("extends");
+			if (parent != null && parent.type.equals("class")){
+				
+			}else{
+				nameuseerror = true;
+			}
+			i = 2;
+
+		}
+
+		for (; i < ctx.Ident().size(); i++){
+			String n = ctx.Ident(i).getText();
+			Scope s = currentScope.inscope(n);
+			if (s !=  null && s.type.equals("interface")){
+
+			}else{
+				nameuseerror = true;
+			}
+		}
+		
+
+		currentScope.decl.add(child);
 	}
 	/**
 	 * {@inheritDoc}
@@ -319,6 +362,63 @@ public class NameUseListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterDesignatorStatement(SimpleLangParser.DesignatorStatementContext ctx) { 
+		//if assignop is present, check if the designator refers to a const
+
+		if(ctx.Assignop() != null || ctx.Minusminus() != null || ctx.Plusplus() != null){
+			//search for designator type
+			//do actual checks in scope for each ident
+			String name=null;
+			Scope temp= currentScope;
+			// for . operator, we need to check scopes of each class
+			for(int i = 0; i < ctx.designator().Ident().size(); i++){
+				name = ctx.designator().Ident(i).getText();
+				if(i==0 && name.equals("this")){
+				}
+				else{
+					temp = temp.inscope(name);
+				}
+				if (temp == null){
+					return;
+				}
+			}
+			if (temp.isconst){
+				constmoderror = true;
+				return;
+			}
+		}else{
+		//if designator is a method, check args for that method scope
+
+		//check if actPars exists, and how many expressions are in it
+			String name=null;
+			Scope temp= currentScope;
+			// for . operator, we need to check scopes of each class
+			for(int i = 0; i < ctx.designator().Ident().size(); i++){
+				name = ctx.designator().Ident(i).getText();
+				if(i==0 && name.equals("this")){
+				}
+				else{
+					temp = temp.inscope(name);
+				}
+				if (temp == null){
+					return;
+				}
+			}
+			int expected = temp.args;
+			int given = 0;
+			if (ctx.actPars() != null){
+				given = ctx.actPars().expr().size();
+			}
+
+			if ( expected != given ){
+				// temp.printscope();
+				// System.out.print(" expected: " + expected);
+				// System.out.print(" given: " + given);
+				// System.out.println(" arg count does not match");
+				//numparamserror = true;
+			}
+
+		}
+
 
 	}
 	/**
@@ -422,9 +522,7 @@ public class NameUseListener extends SimpleLangBaseListener {
 			if ("ord".equals(ctx.Ident(0).getText())
 			|| "chr".equals(ctx.Ident(0).getText())
 			|| "len".equals(ctx.Ident(0).getText())){
-
 				return;
-
 			}
 		}
 				//do actual checks in scope for each ident

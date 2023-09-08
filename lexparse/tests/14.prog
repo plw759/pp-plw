@@ -1,0 +1,26 @@
+//CONST MOD ERROR
+//custom test to examine if const variables are allowed to be reassigned
+project Proj
+    const int size = 10;
+    const boolean t = true;
+    const char c = 'c';
+
+{
+    void f(char ch, int a, int arg)
+        int x;
+        {
+            x = arg;
+            len(x);
+        }
+
+
+    void entry()
+        int x, i;
+    {
+        f(c,x,size);
+        x = size;
+        //const mod error triggered here
+        size++;
+    }
+
+}

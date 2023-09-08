@@ -247,9 +247,8 @@ public class SimpleLangParser extends Parser {
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
-			//_errHandler.reportError(this, re);
-			//_errHandler.recover(this, re);
-			System.out.println("LEX ERROR");
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
 		}
 		finally {
 			exitRule();

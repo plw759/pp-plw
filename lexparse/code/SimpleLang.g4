@@ -17,7 +17,7 @@ varDecl
   ;
 
 classDecl 
-  : CLASS Ident ('extends' Ident)? ('implements' Ident (Comma Ident)*)? '{'  (varDecl)* ('{'(methodDecl)* '}')? '}'
+  : CLASS Ident (EXTENDS Ident)? (IMPLEMENTS Ident (Comma Ident)*)? '{'  (varDecl)* ('{'(methodDecl)* '}')? '}'
   ;
 
 interfaceDecl
@@ -145,7 +145,7 @@ CharConst
 
 /* protected keywords
 keywords: project, break, class, interface, enum, else, const, if,
-new, print, read, return, void, for, extends, continue */
+new, print, read, return, void, for, extends, continue, implements */
 PROJECT
   : 'project'
   ;
@@ -209,7 +209,11 @@ CONTINUE
 VOID
   : 'void'
   ;
-  
+
+IMPLEMENTS
+  : 'implements'
+  ;
+
 Ident
   : [a-zA-Z_][a-zA-Z_0-9]*
   ;

@@ -17,7 +17,8 @@ public class VarListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 
-	Deque<String> decl = new ArrayDeque<String>();
+
+	LinkedList<String> decl = new LinkedList<String>();
 	private boolean varerror = false;
 	@Override public void enterParse(SimpleLangParser.ParseContext ctx) { 
 		decl.push("@parse");
@@ -95,8 +96,25 @@ public class VarListener extends SimpleLangBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterVarDecl(SimpleLangParser.VarDeclContext ctx) {
+
 		for(int i = 0; i < ctx.Ident().size(); i++){
-			if( !decl.contains(ctx.Ident(i).getText())){
+			int idx = decl.indexOf("@method");
+			if (idx == -1){
+				idx = decl.indexOf("@class");
+				if (idx == -1){
+					idx = 0;
+				}
+			}
+			boolean undeclared = true;
+			for (int j = idx; j >=0; j --){
+				if(decl.get(j).equals(ctx.Ident(i).getText())){
+					undeclared = false;
+					break;
+				}
+			}
+			
+
+			if(undeclared){
 				decl.push(ctx.Ident(i).getText());
 			}else{
 				varerror = true;
@@ -221,7 +239,18 @@ public class VarListener extends SimpleLangBaseListener {
 	@Override public void enterFormPars(SimpleLangParser.FormParsContext ctx) { 
 		//part of method scope
 		for(int i = 0; i < ctx.Ident().size(); i++){
-			if( !decl.contains(ctx.Ident(i).getText())){
+			int idx = decl.indexOf("@method");
+			boolean undeclared = true;
+			if (idx != -1){
+				for (int j = idx; j >=0; j --){
+					if(decl.get(j).equals(ctx.Ident(i).getText())){
+						undeclared = false;
+						break;
+					}
+				}
+			}
+
+			if(undeclared){
 				decl.push(ctx.Ident(i).getText());
 			}else{
 				varerror = true;

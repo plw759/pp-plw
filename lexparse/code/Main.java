@@ -8,10 +8,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-    for (int i = 1; i < 15; i ++){
-        System.out.println(i + ".prog");
-        
-        Path path = FileSystems.getDefault().getPath("../tests/"+i+".prog");
+        Path path = FileSystems.getDefault().getPath(args[0]);
         SimpleLangLexer lexer = new SimpleLangLexer(CharStreams.fromPath(path));
         lexer.removeErrorListeners();
         lexer.addErrorListener(MyLexListener.INSTANCE);
@@ -21,7 +18,7 @@ public class Main {
             cts = new CommonTokenStream(lexer);
         }catch(ParseCancellationException e){
             System.out.println( e.getMessage() ); //lex error
-            continue;
+            return;
         }
 
         SimpleLangParser parser = new SimpleLangParser(cts);
@@ -35,7 +32,7 @@ public class Main {
             
         }catch(ParseCancellationException a){
             System.out.println( a.getMessage()); //parse error
-            continue;
+            return;
         }
 
         EntryVisitor visitor = new EntryVisitor();
@@ -47,6 +44,6 @@ public class Main {
         walker.walk(listener,tree);
         NameUseListener listener2 = new NameUseListener();
         walker.walk(listener2, tree);
-        }
     }
+    
 }

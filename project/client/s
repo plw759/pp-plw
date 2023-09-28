@@ -1,0 +1,7 @@
+cp="$(pwd)/../antlr-4.9.2-complete.jar"
+tests="$(pwd)/tests/"
+java -Xmx500M -cp ${cp}:. org.antlr.v4.Tool Cypher.g4 
+# java -Xmx500M -cp ${cp}:. org.antlr.v4.gui.TestRig Cypher oC_Cypher $1
+
+javac -cp ${cp} *.java
+java -cp .:${cp} Main ${tests}

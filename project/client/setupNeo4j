@@ -1,9 +1,6 @@
-wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
-echo 'deb https://debian.neo4j.com stable 5' | sudo tee /etc/apt/sources.list.d/neo4j.list
-sudo apt-get update
+wget -O neo4j-community-5.11.0-unix https://neo4j.com/artifact.php?name=neo4j-community-5.11.0-unix.tar.gz
+tar xfz neo4j-community-5.11.0-unix
 
-sudo apt install neo4j
-
-sudo systemctl enable neo4j.service
-sudo systemctl start neo4j.service
-sudo systemctl status neo4j.service
+./neo4j-community-5.11.0/bin/neo4j-admin dbms set-initial-password password
+./neo4j-community-5.11.0/bin/neo4j start
+./neo4j-community-5.11.0/bin/cypher-shell -u neo4j -p password

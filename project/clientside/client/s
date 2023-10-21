@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ ! -e antlr-4.9.2-complete.jar ]; then
         curl -O https://www.antlr.org/download/antlr-4.9.2-complete.jar
 fi

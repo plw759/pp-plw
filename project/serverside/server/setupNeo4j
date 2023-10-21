@@ -10,5 +10,6 @@ else
 fi
 ./neo4j-community-5.11.0/bin/neo4j start
 sleep 5
-echo "Starting cypher-shell"
-./neo4j-community-5.11.0/bin/cypher-shell -u neo4j -p $password
+echo "Starting cypher-shell and displaying sysinfo"
+echo ":sysinfo" | ./neo4j-community-5.11.0/bin/cypher-shell -u neo4j -p $password 
+echo "Success! Now exiting cypher-shell"

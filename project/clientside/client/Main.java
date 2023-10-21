@@ -8,11 +8,18 @@ import java.nio.file.NoSuchFileException;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.util.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        String testDir = args[0];
+    public static String promptUser(String testDir){
         Scanner sc = new Scanner(System.in);
+        String testPath = "";
         do{
             System.out.print("\nEnter the name of a query in tests: ");  
             String str= sc.nextLine();            
@@ -24,7 +31,7 @@ public class Main {
             }
             try{
                 lexer = new CypherLexer(CharStreams.fromPath(path));
-            }catch(NoSuchFileException e){
+            }catch(Exception e){
                 System.out.println("ERROR - Try Again: No Test Found"); //wrong test name
                 continue;
             }
@@ -51,11 +58,70 @@ public class Main {
                 System.out.println("ERROR - Try Again: Input Invalid");
                 continue;
             }
-            System.out.println("- Valid query:");
-            System.out.println(CharStreams.fromPath(path));
+            System.out.println("- Valid query");
+            testPath = path.toString();
             break;
-        }while(true);      
+        }while(true);    
+        return testPath;  
 
+    }
+
+    public static String readTest(String testPath){
+        // Read in query as a string
+        String fileContent = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(testPath));
+            StringBuilder content = new StringBuilder();
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+
+            br.close();
+
+            fileContent = content.toString();
+            System.out.println("File Content:\n" + fileContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileContent;
+    }
+
+    public static void main(String[] args) throws Exception {
+        // Prompt for valid queries until one passes the lexer and parser
+        String testPath = promptUser(args[0]);
+
+        // Read in query from testPath
+        String fileContent = readTest(testPath);
+
+        // Create a JSON payload containing query
+        String jsonInputString = "{\"query\": \"" + fileContent + "\"}";
+
+        // Connect to server
+        String serverEndpoint = "http://server:8080/query";
+
+        URL obj = new URL(serverEndpoint);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+        // Set the HTTP request method to POST
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setDoOutput(true);
+
+        // Write the JSON query to the request body
+        try (DataOutputStream out = new DataOutputStream(con.getOutputStream())) {
+            byte[] input = jsonInputString.getBytes("utf-8");
+            out.write(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+
+        System.out.println("Successfully sent to server, part 2 complete");
+
+
+
+        // Part 3: accept response from server
 
     }
 }

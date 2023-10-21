@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 
 FROM ubuntu:20.04
-RUN apt-get update && apt-get install -y golang-go && apt-get install -y curl
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go
 WORKDIR /server
 COPY /server/ .
-#CMD ["curl", "-O", "https://www.antlr.org/download/antlr-4.9.2-complete.jar"]
+CMD [ "go", "run", "Main.go"] 

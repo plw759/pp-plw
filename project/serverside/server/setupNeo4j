@@ -4,12 +4,14 @@ if [ -e "$file" ]; then
     # The file exists, so execute your command here
     echo "File $file exists. Starting with -u neo4j -p password"
 else
-    wget -O neo4j-community-5.11.0-unix https://neo4j.com/artifact.php?name=neo4j-community-5.11.0-unix.tar.gz
-    tar xfz neo4j-community-5.11.0-unix
+    # Download the Neo4j archive
+    wget https://neo4j.com/artifact.php?name=neo4j-community-5.11.0-unix.tar.gz -O neo4j-community-5.11.0-unix.tar.gz
+    # Extract the Neo4j archive
+    tar xfz neo4j-community-5.11.0-unix.tar.gz
     ./neo4j-community-5.11.0/bin/neo4j-admin dbms set-initial-password $password
 fi
 ./neo4j-community-5.11.0/bin/neo4j start
-sleep 5
 echo "Starting cypher-shell and displaying sysinfo"
 echo ":sysinfo" | ./neo4j-community-5.11.0/bin/cypher-shell -u neo4j -p $password 
 echo "Success! Now exiting cypher-shell"
+

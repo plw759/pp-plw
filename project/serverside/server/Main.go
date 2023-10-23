@@ -5,13 +5,17 @@ import (
     "net/http"
     "io/ioutil"
 	"encoding/json"
-	"bytes"
     "os"
+    "github.com/neo4j/neo4j-go-driver/v5/neo4j"
+    "context"
 )
 
-func queryHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Request received!", r.Body)
+func getRoot(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("Received Empty Request!")
+    fmt.Fprintln(w, "Empty Request!")
+}
 
+func queryHandler(w http.ResponseWriter, r *http.Request) {
     // Check if the request method is POST
     if r.Method != http.MethodPost {
         w.WriteHeader(http.StatusMethodNotAllowed)
@@ -42,50 +46,76 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // You can now process the cypherQuery as needed and execute it with Neo4j
-	fmt.Println("Query received: ",cypherQuery)
-	jsonResponse, err := queryDatabase(cypherQuery)
+    //Execute query
+    jsonResponse, err := queryDatabase(cypherQuery)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
         w.Write([]byte("Database threw an error"))
 		return
 	}
-	fmt.Println("Response from Neo4j: ", jsonResponse)
 
     // Part 3, receive response from database and send it back to client
+    w.Header().Set("Content-Type", "application/json")
+    w.Write(jsonResponse)
+    
 }
 
+// from neo4j documentation
 func queryDatabase(query string) ([]byte, error){
-    fmt.Println("Now querying neo4j")
-	neo4jURL := "http://localhost:7474" // "or 7687 for bolt protocol"
+    dbUri := "bolt://neo:7687"
+    driver, err := neo4j.NewDriverWithContext(dbUri, neo4j.BasicAuth("neo4j", "asdfg123", ""))
+    if err != nil {
+        fmt.Println(err)
+        return nil, err
+    }
+    ctx := context.Background()
+    defer driver.Close(ctx) 
+    result, err := executeQuery(query, ctx, driver)
+    if err != nil {
+        fmt.Println(err)
+        return nil, err
+    }
 
-	requestBody := []byte(fmt.Sprintf(`{"statements": [{"statement": "%s"}]}`, query))
+    // Create a slice to store the results
+    var results []map[string]interface{}
 
-	response, err := http.Post(neo4jURL, "application/json", bytes.NewBuffer(requestBody))
-	if err != nil{
-		return nil, err
-	}
-	defer response.Body.Close()
+    for _, record := range result.Records {
+        recordMap := make(map[string]interface{})
+        for i, key := range result.Keys {
+            recordMap[key] = record.Values[i]
+        }
+        results = append(results, recordMap)
+    }
 
-	responseBytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
+    // Convert the results to JSON
+    jsonData, err := json.Marshal(results)
+    if err != nil {
+        panic(err)
+    }
 
-	return responseBytes, nil
+    // Summary information
+    fmt.Printf("\nThe query \n`%v` \nreturned %v records in %+v.\nAwaiting next query.\n",
+        result.Summary.Query().Text(), len(result.Records),
+        result.Summary.ResultAvailableAfter())
+
+    return jsonData, nil
 }
 
-func getRoot(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Empty Request!")
-
+// from neo4j documentation
+func executeQuery(query string, ctx context.Context, driver neo4j.DriverWithContext) (*neo4j.EagerResult, error) {
+    result, err := neo4j.ExecuteQuery(ctx, driver,
+        query, nil, neo4j.EagerResultTransformer)
+    if err != nil {
+        return nil, err
+    }
+    return result, nil
 }
 
 func main() {
     http.HandleFunc("/", getRoot)
     http.HandleFunc("/query", queryHandler)
-    port := 8080
-    fmt.Printf("Server is running on port %d\n", port)
-    err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+    fmt.Println("Server is running on port 8080")
+    err := http.ListenAndServe("0.0.0.0:8080", nil)
     if err != nil {
 		fmt.Printf("error starting server: %s\n", err)
 		os.Exit(1)

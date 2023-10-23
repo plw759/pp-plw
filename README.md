@@ -84,20 +84,25 @@ cd project
 
 Then run ./setupNeo4j to ensure the database runs, and run ./setupDocker to run docker installation script
 
-To use docker image ... TBD
+To setup docker containers 
 
 ```bash
-# Build docker container
-docker build -t myproject .
-# Run docker container with shell
-docker container run -it myproject /bin/bash
+# Create a docker network that the containers will communicate on
+docker network create myNetwork
+# Build docker image for server at Dockerfile level
+docker build -t server .
+# Run docker container with network and container name, and expose port 8080
+docker run --rm --name server --network myNetwork -p 8080:8080 server
+# Build docker image for client at Dockerfile level
+docker build -t client .
+# Run docker container with shell to interact with client
+docker run -it --rm --name client --network myNetwork client bash
+# Run docker image of neo4j, note that the docker instance does NOT persist data
+docker run --rm --name neo --network myNetwork--publish=7474:7474 --publish=7687:7687 -d --env NEO4J_AUTH=neo4j/asdfg123 neo4j:5.12.0
+# Cleanup old server when done by stopping all containers
+docker stop neo server client
 ```
 
 ### Script
 
-The main script to start a client is called s and must be run in client directory
-
-```bash
-cd client
-./s
-```
+The main script to start a client is called ./s and is executed upon running of client container

@@ -2,9 +2,9 @@ Class {
 	#name : #GEdge,
 	#superclass : #LineMorph,
 	#instVars : [
-		'fromId',
-		'toId',
-		'label',
+		'startId',
+		'endId',
+		'type',
 		'properties'
 	],
 	#category : #Graph
@@ -42,9 +42,9 @@ GEdge >> setProps: someProperties [
 ]
 
 { #category : #initialization }
-GEdge >> setStart: anId End: anotherId [ 
-	startId := anId.
-	endId := anotherId.
+GEdge >> setStart: startingId End: endingId [ 
+	startId := startingId.
+	endId := endingId.
 	
 	
 ]

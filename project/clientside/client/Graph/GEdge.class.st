@@ -2,9 +2,9 @@ Class {
 	#name : #GEdge,
 	#superclass : #LineMorph,
 	#instVars : [
-		'startId',
-		'endId',
-		'type',
+		'fromId',
+		'toId',
+		'label',
 		'properties'
 	],
 	#category : #Graph

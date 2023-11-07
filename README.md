@@ -92,15 +92,17 @@ docker network create myNetwork
 # Build docker image for server at Dockerfile level
 docker build -t server .
 # Run docker container with network and container name, and expose port 8080
-docker run --rm --name server --network myNetwork -p 8080:8080 server
+docker run --rm --name server --network myNetwork -p 8080:8080 server -d
+# Run docker image of neo4j, note that the docker instance does NOT persist data
+docker run --rm --name neo --network myNetwork -p 7474:7474 -p 7687:7687 -d --env NEO4J_AUTH=neo4j/asdfg123 neo4j:5.12.0
+# Run docker image of h2
+docker run --rm --name h2 --network myNetwork -p 9092:9092 -d --env H2_OPTIONS="-tcp -tcpAllowOthers" thomseno/h2
 # Build docker image for client at Dockerfile level
 docker build -t client .
 # Run docker container with shell to interact with client
 docker run -it --rm --name client --network myNetwork client bash
-# Run docker image of neo4j, note that the docker instance does NOT persist data
-docker run --rm --name neo --network myNetwork--publish=7474:7474 --publish=7687:7687 -d --env NEO4J_AUTH=neo4j/asdfg123 neo4j:5.12.0
-# Cleanup old server when done by stopping all containers
-docker stop neo server client
+# Cleanup old servers when done by stopping all containers
+docker stop neo server client h2
 ```
 
 ### Script

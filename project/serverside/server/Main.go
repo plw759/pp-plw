@@ -46,7 +46,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    //Execute query
+    // Execute query
     jsonResponse, err := queryDatabase(cypherQuery)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

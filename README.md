@@ -80,11 +80,14 @@ git clone https://github.com/plw759/pp-plw.git
 cd project
 ```
 
+Preliminary checks (optional scripts)
+
+Run ./setupNeo4j in server to ensure the database runs, and run ./setupDocker in client to run docker installation script
+
 ### Docker
 
-Then run ./setupNeo4j to ensure the database runs, and run ./setupDocker to run docker installation script
-
-To setup docker containers 
+In total there will be 1 network, 2 detached containers, 1 server container, and 1 iterative client container. They will all have --rm so that all containers are automatically removed once stopped.
+To setup docker containers after ./setupDocker:
 
 ```bash
 # Create a docker network that the containers will communicate on
@@ -92,7 +95,7 @@ docker network create myNetwork
 # Build docker image for server at Dockerfile level
 docker build -t server .
 # Run docker container with network and container name, and expose port 8080
-docker run --rm --name server --network myNetwork -p 8080:8080 server -d
+docker run --rm --name server --network myNetwork -p 8080:8080 server 
 # Run docker image of neo4j, note that the docker instance does NOT persist data
 docker run --rm --name neo --network myNetwork -p 7474:7474 -p 7687:7687 -d --env NEO4J_AUTH=neo4j/asdfg123 neo4j:5.12.0
 # Run docker image of h2
@@ -105,6 +108,6 @@ docker run -it --rm --name client --network myNetwork client bash
 docker stop neo server client h2
 ```
 
-### Script
+### Client Entrypoint
 
 The main script to start a client is called ./s and is executed upon running of client container

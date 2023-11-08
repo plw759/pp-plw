@@ -10,5 +10,4 @@ java -Xmx500M -cp ${cp}:. org.antlr.v4.Tool Cypher.g4
 #java -Xmx500M -cp ${cp}:. org.antlr.v4.gui.TestRig Cypher oC_Cypher 
 
 javac -cp ${cp}:${cp2} *.java
-#java -cp h2.jar org.h2.tools.Server -tcp -tcpAllowOthers
 java -cp .:${cp}:${cp2} Main ${tests}

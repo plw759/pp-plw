@@ -6,7 +6,9 @@
 - [Instructions](#instructions)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Setups] (#setups)
   - [Docker](#docker)
+  - [Pharo] (#pharo)
   - [Notes](#notes)
 
 ## About
@@ -80,9 +82,9 @@ git clone https://github.com/plw759/pp-plw.git
 cd project
 ```
 
-Preliminary checks (optional scripts)
+### Setups
 
-Run ./setupNeo4j in server to ensure the database runs, and run ./setupDocker in client to run docker installation script
+Run ./setupNeo4j in server to ensure the database runs, and run ./setupDocker in client to run docker installation script, and run ./setup-graph.sh to download pharo launcher
 
 ### Docker
 
@@ -111,8 +113,13 @@ docker run -it --rm --name visualizer -v $(pwd)/../clientside/client/responses/:
 # Cleanup old servers when done by stopping all containers
 docker stop neo server client h2 visualizer
 ```
+### Pharo
 
-### Script
+# The Smalltalk visualizer was initially supposed to run on a docker container, but due to the headless nature of docker, had to be configured with a bash script instead. The instructions for configuring the pharo launcher are as follows:
+
+After running ./setup-graph.sh in graph, pharo launcher will be installed and opened. Then if no pharo11 images are available, you must create a new one and launch it. To grab necessary packges (3), you must select git repositories browser and import from an existing clone by selecting the directory that this repo is located in (pp-plw). Afterwards, load in the project by clicking into each missing package and adding them. Finally, to run the visualizer, open the playground and type `MyMain show.`. This will display the visualization every time it is run.
+
+### Notes
 
 The main script to start a client is called ./s and is executed upon running of client container
 

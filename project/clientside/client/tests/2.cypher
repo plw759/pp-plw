@@ -1,3 +1,3 @@
-//pass
-CALL db.labels() YIELD label
-RETURN count(label) AS numLabels
+//pass, used to clear database
+MATCH (n)
+DETACH DELETE n;

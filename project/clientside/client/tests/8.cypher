@@ -1,2 +1,2 @@
 //pass
-MATCH ()-[r]-() RETURN r
+MATCH ()-[r]-() RETURN distint type(r)

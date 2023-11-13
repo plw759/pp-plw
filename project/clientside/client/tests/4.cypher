@@ -11,4 +11,3 @@ CREATE
  CREATE (b)-[:OWES {dollars: 35}]->(d)
  CREATE (d)-[:OWES {dollars: 15}]->(b)
  CREATE (d)-[:OWES {dollars: 30}]->(b)
-CREATE (:Counter {count: 0})

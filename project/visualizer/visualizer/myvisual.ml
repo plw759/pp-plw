@@ -39,11 +39,11 @@ let create_table_with_average flattened_array : table =
     | None -> `Null  (* Use `Null for missing values *)
   in
 
-  (* Function to calculate the average for a specific key *)
+  (* Function to calculate the average for a specific int column down to 2 decimals *)
   let calculate_average key =
     match List.filter_map (fun row -> match List.assoc_opt key row with Some (`Int n) -> Some n | _ -> None) flattened_array with
     | [] -> `Null
-    | values -> `Float (float_of_int (List.fold_left (+) 0 values) /. float_of_int (List.length values))
+    | values -> `Float (float_of_string (Printf.sprintf "%.2f" (float_of_int (List.fold_left (+) 0 values) /. float_of_int (List.length values))))
   in
 
   (* Create a row for average values *)

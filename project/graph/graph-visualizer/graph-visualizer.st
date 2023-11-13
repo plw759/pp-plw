@@ -1,4 +1,8 @@
 | myMorph |
+Metacello new
+  repository: 'github://svenvc/NeoJSON/repository';
+  baseline: 'NeoJSON';
+  load.
 
 "Create a new morph"
 myMorph := Morph new.

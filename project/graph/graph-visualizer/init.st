@@ -1,0 +1,5 @@
+Metacello new
+  repository: 'github://svenvc/NeoJSON/repository';
+  baseline: 'NeoJSON';
+  load.
+ 

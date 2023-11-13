@@ -1,2 +1,3 @@
 //pass
-MATCH (n) MATCH (n)-[r]-() RETURN n,r
+MATCH (p:Person)-[o:OWES]->()
+RETURN p.name, o.dollars

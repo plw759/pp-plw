@@ -1,3 +1,4 @@
 //pass
-MATCH (n)
-RETURN count(n) AS elementCount
+MATCH ()-[o:OWES]->()
+WHERE o.dollars > 25
+RETURN *

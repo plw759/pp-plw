@@ -1,0 +1,10 @@
+# syntax=docker/dockerfile:1
+# Use the ocaml/opam image as a base
+FROM ocaml/opam
+RUN sudo apt-get update
+RUN sudo apt-get install -y ocaml
+WORKDIR /visualizer
+COPY /visualizer/ .
+RUN opam init --disable-sandboxing --no-setup
+RUN eval $(opam env) && opam install yojson
+CMD ["./myvisual"]

@@ -32,13 +32,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Main {
-    static String testName;
+    
     public static String promptUser(String testDir){
         Scanner sc = new Scanner(System.in);
         String testPath = "";
         do{
             System.out.print("\nEnter the name of a query in tests: ");  
-            testName = sc.nextLine();            
+            String testName = sc.nextLine();            
             Path path = FileSystems.getDefault().getPath(testDir+testName);
             CypherLexer lexer = null;
             if(testName.isEmpty()){
@@ -212,6 +212,9 @@ public class Main {
             if(resp != null){
                 System.out.println("- Cached response found");
                 System.out.println("Response JSON: " + new String(resp, StandardCharsets.UTF_8));
+                BufferedWriter writer = new BufferedWriter(new FileWriter("/responses/current.response"));
+                writer.write(new String(resp, StandardCharsets.UTF_8));
+                writer.close();        
                 continue;
             }
             System.out.println("- No result cached yet");
@@ -251,8 +254,7 @@ public class Main {
         reader.close();
 
         // Add JSON response to a file in responses
-        Path responsePath = FileSystems.getDefault().getPath("responses");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(responsePath.toString() + "/" + testName + ".response"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("/responses/current.response"));
         writer.write(response.toString());
         writer.close();
 

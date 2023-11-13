@@ -7,7 +7,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Docker](#docker)
-  - [Script](#script)
+  - [Notes](#notes)
 
 ## About
 
@@ -86,7 +86,7 @@ Run ./setupNeo4j in server to ensure the database runs, and run ./setupDocker in
 
 ### Docker
 
-In total there will be 1 network, 2 detached containers, 1 server container, and 1 iterative client container. They will all have --rm so that all containers are automatically removed once stopped.
+In total there will be 1 network, 2 detached containers, 1 server container, and 2 iterative containers. They will all have --rm so that all containers are automatically removed once stopped.
 To setup docker containers after ./setupDocker:
 
 ```bash
@@ -103,11 +103,17 @@ docker run --rm --name h2 --network myNetwork -p 9092:9092 -d --env H2_OPTIONS="
 # Build docker image for client at Dockerfile level
 docker build -t client .
 # Run docker container with shell to interact with client
-docker run -it --rm --name client --network myNetwork client bash
+docker run -it --rm --name client --network myNetwork -v $(pwd)/client/responses/:/responses client bash
+# Build docker image for visualizer at Dockerfile level
+docker build -t visualizer .
+# Run docker container with network and container name
+docker run -it --rm --name visualizer -v $(pwd)/../clientside/client/responses/:/responses visualizer 
 # Cleanup old servers when done by stopping all containers
 docker stop neo server client h2
 ```
 
-### Client Entrypoint
+### Script
 
 The main script to start a client is called ./s and is executed upon running of client container
+
+Use ` ocamlfind ocamlopt -o myvisual -linkpkg -package yojson myvisual.ml ` to compile visualizer in ocaml

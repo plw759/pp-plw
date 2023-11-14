@@ -19,6 +19,7 @@ MyMain class >> show [
 	           / 'clientside' / 'client' / 'responses'
 	           / 'current.response') readStream.
 	myArray := NeoJSONReader fromString: stream.
+	myArray ifNil: [ Transcript show: 'Nil response'; cr. ^self ].
 	myArray do: [ :map |
 		map do: [ :element |
 			| keySize |
@@ -46,7 +47,7 @@ MyMain class >> show [
 						64 + ((n rem: columns) * 256) @ (64 + ((n quo: columns) * 256)).
 					node openInWorld ]
 				ifFalse: [
-					keySize = 6
+					keySize = 8
 						ifTrue: [
 							edge := GEdge new.
 							edge

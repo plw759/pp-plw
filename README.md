@@ -109,7 +109,7 @@ docker run -it --rm --name client --network myNetwork -v $(pwd)/client/responses
 # Build docker image for visualizer at Dockerfile level
 docker build -t visualizer .
 # Run docker container with network and container name
-docker run -it --rm --name visualizer -v $(pwd)/../clientside/client/responses/:/opt/pharo/responses visualizer 
+docker run -it --rm --name visualizer -v $(pwd)/../clientside/client/responses/:/responses visualizer 
 # Cleanup old servers when done by stopping all containers
 docker stop neo server client h2 visualizer
 ```

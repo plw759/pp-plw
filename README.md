@@ -6,9 +6,9 @@
 - [Instructions](#instructions)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Setups] (#setups)
+  - [Setups](#setups)
   - [Docker](#docker)
-  - [Pharo] (#pharo)
+  - [Pharo](#pharo)
   - [Notes](#notes)
 
 
